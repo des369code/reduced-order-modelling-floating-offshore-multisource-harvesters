@@ -1,0 +1,46 @@
+# =========================================================================
+# Whitelist ignore: everything is ignored unless re-included below.
+# The repo tracks ONLY the simulation pipeline, its input data, and its
+# pipeline-generated outputs. Coursework documents, reference papers, and
+# tooling state never enter version control.
+# =========================================================================
+
+/*
+
+# ---- Tracked trees and files ----
+!/src/
+!/data/
+!/outputs/
+!/README.md
+!/LICENSE
+!/.gitignore
+
+# ---- src: archived early iterations stay local ----
+src/legacy/
+
+# ---- outputs: only pipeline products are tracked ----
+outputs/*
+!outputs/clean/
+!outputs/sysid/
+!outputs/forces/
+!outputs/results/
+
+# ---- README figures (regenerated from the committed result CSVs) ----
+!/assets/
+
+# ---- superseded artifacts (kept locally, not part of the deliverable) ----
+# Legacy steady-wind aero force and legacy K*eta wave force (src/legacy/ outputs)
+outputs/forces/Clean_Aero_Force.csv
+outputs/forces/Clean_Wave_Force.csv
+# Stale 6 m/s run snapshots (current 6 m/s output: Final_Simulation_Results.csv)
+outputs/forces/Clean_Aero_Force_Variable_6ms.csv
+outputs/results/Final_Simulation_Results_6ms.csv
+# Manual backup of canonical M/C/K (Run_20ms_*.m regenerate matrices on every run)
+outputs/sysid/MasterSystemData_canonical.mat
+
+# ---- OS / editor noise ----
+.DS_Store
+**/.DS_Store
+*.asv
+*.m~
+*.mex*
