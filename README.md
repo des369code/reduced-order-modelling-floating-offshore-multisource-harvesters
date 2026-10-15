@@ -7,7 +7,7 @@
 
 A full 6-DOF coupled aero-hydrodynamic time-domain simulation of a hybrid Darrieus + Savonius vertical-axis wind turbine (VAWT) mounted on a floating platform with a 4-line spread mooring system. Written entirely in MATLAB, from raw ANSYS AQWA response data to a running coupled simulation, including a 20 m/s extreme-storm survivability study and three platform stability variants.
 
-**Final Year Project, Department of Mechanical Engineering, Universiti Malaya.**
+**GOLD AWARD Final Year Project, Department of Mechanical Engineering, Universiti Malaya.**
 
 ![Platform 6-DOF response at rated wind speed](assets/fig1_6dof_6ms.png)
 
