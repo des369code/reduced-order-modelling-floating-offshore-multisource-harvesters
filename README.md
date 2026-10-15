@@ -62,25 +62,81 @@ Ballast alone is the difference between capsize and survival, but the margin (6�
 ## How It Works
 
 ```
-data/raw/*.csv  ──→ Clean_Dataset_Script.m  ──→ outputs/clean/           (Phase 1)
-                                                             ↓
-                    PSD_NaturalFrequency.m         → outputs/sysid/       (Phase 2)
-                    Half_Power_Bandwidth_Damping.m →   ωn, ζ
-                    Mooring_Stiffness_Extraction.m →   K_moor
-                                                             ↓
-                    Final_Matrix_Coefficients_MCK.m → MasterSystemData.mat (Phase 3)
-                                                             ↓
-                    Extract_Wave_Excitation.m  → outputs/forces/           (Phase 4)
-                    DMST_Variable_Wind.m       →   wave + aero forces
-                    DMST_Extreme_Wind.m        →   (20 m/s storm case)
-                                                             ↓
-                    Coupled_Simulation.m       → outputs/results/         (Phase 5)
-                    Coupled_Simulation_20ms.m  →   (case argument selects
-                    Run_20ms_*.m                   the M/C/K variant)
-                                                             ↓
-                    Check_Numerical_SelfConsistency.m                     (Phase 6)
-                    Check_Geometry_K.m
-                    Simulation_3D_new.m                                   (Phase 7)
+                            ┌───────────────────────────────────┐
+                            │          data/raw/*.csv           │
+                            │   AQWA 6-DOF + mooring tension    │
+                            └─────────────────┬──────────────────┘
+                                              │
+   PHASE 1                                    ▼
+                            ┌───────────────────────────────────┐
+                            │      Clean_Dataset_Script.m       │
+                            └─────────────────┬──────────────────┘
+                                              │
+                                              ▼
+                            ┌───────────────────────────────────┐
+                            │          outputs/clean/           │
+                            │    6-DOF + tension time series    │
+                            └─────────────────┬──────────────────┘
+                                              │
+   PHASE 2        ┌───────────────────────────┼───────────────────────────┐
+                  ▼                           ▼                           ▼
+     ┌─────────────────────────┐ ┌─────────────────────────┐ ┌─────────────────────────┐
+     │ PSD_NaturalFrequency.m  │ │  Half_Power_Bandwidth_  │ │   Mooring_Stiffness_    │
+     │  → ωn (natural freqs)   │ │ Damping.m → ζ (damping) │ │  Extraction.m → K_moor  │
+     └─────────────────────────┘ └─────────────────────────┘ └─────────────────────────┘
+                  │ ωn                        │ ζ                         │ K_moor
+                  └───────────────────────────┬───────────────────────────┘
+                                              │
+   PHASE 3                                    ▼
+                            ┌───────────────────────────────────┐
+                            │  Final_Matrix_Coefficients_MCK.m  │
+                            │  (+ _Ballast / _Wide / _Combined  │
+                            │        stability variants)        │
+                            └─────────────────┬──────────────────┘
+                                              │
+                                              ▼
+                            ┌───────────────────────────────────┐
+                            │  MasterSystemData.mat  (M, C, K)  │
+                            └─────────────────┬──────────────────┘
+                                              │
+   PHASE 4        ┌───────────────────────────┼───────────────────────────┐
+                  ▼                           ▼                           ▼
+     ┌─────────────────────────┐ ┌─────────────────────────┐ ┌─────────────────────────┐
+     │Extract_Wave_Excitation.m│ │  DMST_Variable_Wind.m   │ │   DMST_Extreme_Wind.m   │
+     │  inverse EoM → F_wave   │ │    6 m/s rated aero     │ │    20 m/s storm aero    │
+     │      (0.1 s grid)       │ │       (1 ms grid)       │ │       (1 ms grid)       │
+     └─────────────────────────┘ └─────────────────────────┘ └─────────────────────────┘
+                  │ 0.1 s grid                │ 1 ms grid                 │ 1 ms grid
+                  └───────────────────────────┬───────────────────────────┘
+                                              │
+   PHASE 5        ┌───────────────────────────┴───────────────────────────┐
+                  ▼                                                       ▼
+     ┌─────────────────────────┐                             ┌─────────────────────────┐
+     │  Coupled_Simulation.m   │                             │Coupled_Simulation_20ms.m│
+     │       rated case:       │                             │ + Run_20ms_{Canonical,  │
+     │ F_wave + F_aero (6 m/s) │                             │Ballast, Wide, Combined} │
+     │                         │                             │F_wave + F_aero (20 m/s) │
+     └─────────────────────────┘                             └─────────────────────────┘
+                  │                                                       │
+                  └───────────────────────────┬───────────────────────────┘
+                                              │
+                                              ▼
+                            ┌───────────────────────────────────┐
+                            │         outputs/results/          │
+                            │   Final_Simulation_Results*.csv   │
+                            └─────────────────┬──────────────────┘
+                                              │
+   PHASE 6                                    ▼
+                            ┌───────────────────────────────────┐
+                            │ Check_Numerical_SelfConsistency.m │
+                            │        Check_Geometry_K.m         │
+                            └─────────────────┬──────────────────┘
+                                              │
+   PHASE 7                                    ▼
+                            ┌───────────────────────────────────┐
+                            │        Simulation_3D_new.m        │
+                            │      3D visualization + HUD       │
+                            └───────────────────────────────────┘
 ```
 
 **Phase details:**
